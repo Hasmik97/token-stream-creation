@@ -10,7 +10,7 @@ const data: Types.IGetAllData = {
 
 const DisplayStreams: React.FC = () => {
   const wallet = useWallet();
-  const [streams, setStreams] = useState<any[]>([]); // Adjust the type based on the actual stream object
+  const [streams, setStreams] = useState<any[]>([]);
   const [client, setClient] = useState<GenericStreamClient<IChain.Solana> | null>(null);
 
     useEffect(() => {

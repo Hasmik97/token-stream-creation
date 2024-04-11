@@ -5,6 +5,7 @@ import { fetchSPLTokenBalances } from '../utils/fetchTokens';
 import { StreamflowSolana, ICreateStreamData, getBN } from '@streamflow/stream';
 import { BN } from 'bn.js';
 import StreamForm from './StreamForm';
+import TransactionSuccess from './TransactionSuccess';
 
 const SOLANA_DEV_ENV: string = "https://api.devnet.solana.com";
 
@@ -12,6 +13,7 @@ const CreateStream: React.FC = () => {
   const wallet = useWallet();
   const [connection, setConnection] = useState<Connection | null>(null);
   const [tokens, setTokens] = useState({});
+  const [signature, setSignature] = useState('');
   const solanaClient = new StreamflowSolana.SolanaStreamClient(SOLANA_DEV_ENV);
 
   useEffect(() => {
@@ -38,19 +40,18 @@ const CreateStream: React.FC = () => {
         tokenId: streamData.token, // Token mint address.
         start: 1643363040, // Timestamp (in seconds) when the stream/token vesting starts.
         amount: getBN(100, 9), // streamData.amount depositing 100 tokens with 9 decimals mint.
-        period: 1, // Time step (period) in seconds per which the unlocking occurs.
-        cliff: 1643363160, // Vesting contract "cliff" timestamp in seconds.
-        cliffAmount: new BN(10), // Amount unlocked at the "cliff" timestamp.
-        amountPerPeriod: getBN(5, 9), // Release rate: how many tokens are unlocked per each period.
-        name: "Transfer to Jane Doe.", // The stream name or subject.
-        canTopup: false, // setting to FALSE will effectively create a vesting contract.
-        cancelableBySender: true, // Whether or not sender can cancel the stream.
-        cancelableByRecipient: false, // Whether or not recipient can cancel the stream.
-        transferableBySender: true, // Whether or not sender can transfer the stream.
-        transferableByRecipient: false, // Whether or not recipient can transfer the stream.
-        automaticWithdrawal: true, // Whether or not a 3rd party (e.g. cron job, "cranker") can initiate a token withdraw/transfer.
-        withdrawalFrequency: 10, // Relevant when automatic withdrawal is enabled. If greater than 0 our withdrawor will take care of withdrawals. If equal to 0 our withdrawor will skip, but everyone else can initiate withdrawals.
-        partner: undefined, //  (optional) Partner's wallet address (string | null).
+        period: 1,
+        cliff: 1643363160,
+        cliffAmount: new BN(10),
+        amountPerPeriod: getBN(5, 9),
+        name: "Transfer to Test Name.",
+        canTopup: false,
+        cancelableBySender: true,
+        cancelableByRecipient: false,
+        transferableBySender: true,
+        transferableByRecipient: false,
+        automaticWithdrawal: true,
+        withdrawalFrequency: 10,
       };
 
       
@@ -60,14 +61,16 @@ const CreateStream: React.FC = () => {
 
 
       // @ts-ignore
-      const { ixs, tx, metadata } = await solanaClient.create(createStreamParams, solanaParams);
-      console.log(ixs, tx, metadata);
+      const { ixs, txId, metadata } = await solanaClient.create(createStreamParams, solanaParams);
+      console.log(ixs, txId, metadata);
+      setSignature(txId);
+
     } catch (error) {
         console.error("Failed to create stream:", error);
     }
   };
 
-  return <StreamForm onCreateStream={handleCreateStream} tokens={tokens} />;
+  return !!signature ? <TransactionSuccess signature={signature} /> : <StreamForm onCreateStream={handleCreateStream} tokens={tokens} />;
 };
 
 export default CreateStream;
