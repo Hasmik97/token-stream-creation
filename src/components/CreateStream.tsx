@@ -1,27 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletAdapter } from '@solana/wallet-adapter-base';
-import { Connection, Keypair } from '@solana/web3.js';
+import { Connection } from '@solana/web3.js';
 import { fetchSPLTokenBalances } from '../utils/fetchTokens';
 import { StreamflowSolana, ICreateStreamData, getBN } from '@streamflow/stream';
 import { BN } from 'bn.js';
 import StreamForm from './StreamForm';
 
+const SOLANA_DEV_ENV: string = "https://api.devnet.solana.com";
+
 const CreateStream: React.FC = () => {
   const wallet = useWallet();
   const [connection, setConnection] = useState<Connection | null>(null);
   const [tokens, setTokens] = useState({});
-  const solanaClient = new StreamflowSolana.SolanaStreamClient(
-    "https://api.devnet.solana.com"
-  );
+  const solanaClient = new StreamflowSolana.SolanaStreamClient(SOLANA_DEV_ENV);
 
   useEffect(() => {
     const fetchTokens = async () => {
-      const tokens = await fetchSPLTokenBalances(wallet.publicKey?.toBase58(), "https://api.devnet.solana.com");
+      const tokens = await fetchSPLTokenBalances(wallet.publicKey?.toBase58(), SOLANA_DEV_ENV);
       if (tokens.length) setTokens(tokens);
     }
     if (wallet.connected) {
-      setConnection(new Connection("https://api.devnet.solana.com"));
+      setConnection(new Connection(SOLANA_DEV_ENV));
       fetchTokens();
     }
   }, [wallet.connected]);
@@ -56,14 +55,13 @@ const CreateStream: React.FC = () => {
 
       
       const solanaParams = {
-        sender: wallet, // SignerWalletAdapter or Keypair of Sender account
+        sender: wallet,
       };
 
 
-      const createStreamTransaction = await solanaClient.create(createStreamParams, solanaParams);
-
-        // You'll need to sign and send the transaction
-        // This may involve the user's wallet for signing
+      // @ts-ignore
+      const { ixs, tx, metadata } = await solanaClient.create(createStreamParams, solanaParams);
+      console.log(ixs, tx, metadata);
     } catch (error) {
         console.error("Failed to create stream:", error);
     }

@@ -1,5 +1,6 @@
 import { Connection, PublicKey } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+
+const TOKEN_PROGRAM_ID: PublicKey = new PublicKey("HqDGZjaVRXJ9MGRQEw7qDc2rAr6iH1n1kAQdCZaCMfMZ");
 
 export async function fetchSPLTokenBalances(walletAddress: string | undefined, networkUrl: string) {
     if (!walletAddress) return [];
