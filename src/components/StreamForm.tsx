@@ -13,7 +13,6 @@ const StreamForm: React.FC<StreamFormProps> = ({ onCreateStream, tokens }) => {
   const [amount, setAmount] = useState('');
   const [token, setToken] = useState('');
 
-  console.log(tokens?.balance);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onCreateStream({ recipient, amount, token });

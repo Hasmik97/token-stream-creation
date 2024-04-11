@@ -61,9 +61,8 @@ const CreateStream: React.FC = () => {
 
 
       // @ts-ignore
-      const { ixs, txId, metadata } = await solanaClient.create(createStreamParams, solanaParams);
-      console.log(ixs, txId, metadata);
-      setSignature(txId);
+      const { txId } = await solanaClient.create(createStreamParams, solanaParams);
+      txId && setSignature(txId);
 
     } catch (error) {
         console.error("Failed to create stream:", error);
